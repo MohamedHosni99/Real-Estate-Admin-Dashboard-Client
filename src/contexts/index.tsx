@@ -1,54 +1,34 @@
-import React, {
-  type PropsWithChildren,
-  createContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { type PropsWithChildren, createContext, useEffect, useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
-import { DarkTheme, LightTheme } from "@refinedev/mui";
+import { LightTheme } from "@refinedev/mui"; // Only using LightTheme
 
 type ColorModeContextType = {
-  mode: string;
-  setMode: () => void;
+  mode: string; // Just keep the mode to light
+  setMode: () => void; // This is removed as you no longer need to toggle the mode
 };
 
 export const ColorModeContext = createContext<ColorModeContextType>(
   {} as ColorModeContextType,
 );
 
-export const ColorModeContextProvider: React.FC<PropsWithChildren> = ({
-  children,
-}) => {
-  const colorModeFromLocalStorage = localStorage.getItem("colorMode");
-  const isSystemPreferenceDark = window?.matchMedia(
-    "(prefers-color-scheme: dark)",
-  ).matches;
+export const ColorModeContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  // Force the theme to light mode
+  const [mode] = useState("light"); // Always use light mode
 
-  const systemPreference = isSystemPreferenceDark ? "dark" : "light";
-  const [mode, setMode] = useState(
-    colorModeFromLocalStorage || systemPreference,
-  );
-
+  // Ensure colorMode is saved in localStorage if needed
   useEffect(() => {
-    window.localStorage.setItem("colorMode", mode);
-  }, [mode]);
+    window.localStorage.setItem("colorMode", "light"); // Always set to light mode
+  }, []);
 
-  const setColorMode = () => {
-    if (mode === "light") {
-      setMode("dark");
-    } else {
-      setMode("light");
-    }
-  };
-
+  // No need to toggle mode anymore, so remove setColorMode
   return (
     <ColorModeContext.Provider
       value={{
-        setMode: setColorMode,
+        setMode: () => {}, // No-op function since we're not toggling anymore
         mode,
       }}
     >
-      <ThemeProvider theme={mode === "light" ? LightTheme : DarkTheme}>
+      <ThemeProvider theme={LightTheme}>
         {children}
       </ThemeProvider>
     </ColorModeContext.Provider>
